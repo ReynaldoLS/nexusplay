@@ -323,3 +323,704 @@
 
         <div class="pt-2 flex justify-end gap-2">
           <button type="button" onclick="closeUploadModal()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold rounded-xl transition">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-pink-600 hover:bg-pink-500 text-white text-xs font-semibold rounded-xl transition shadow-md shadow-pink-600/30">Guardar en Catálogo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICACIÓN -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-pink-600 text-white px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold flex items-center gap-2">
+    <i data-lucide="check-circle" class="w-4 h-4"></i>
+    <span id="toastMessage">Notificación</span>
+  </div>
+
+  <script>
+    let selectedMediaType = 'all';
+    const categories = ['Todos', '⭐ Favoritos', 'Acción 💥', 'Películas Animadas 🎬', 'Películas Anime 🐲', 'Series Actuales 📺', 'Series Marvel & DC 🦸'];
+    let selectedCategory = 'Todos';
+
+    const rawCatalog = [
+      {
+        id: 'shazam-1',
+        title: '¡Shazam!',
+        type: 'movie',
+        category: 'Series Marvel & DC 🦸',
+        author: '@DCDrive',
+        views: '41.2K',
+        likes: 3900,
+        duration: '02:12:00',
+        description: 'Billy Batson es un adolescente adoptado que recibe los poderes del mago Shazam, convirtiéndose en un superhéroe adulto.',
+        driveEmbedUrl: 'https://drive.google.com/file/d/1Z953uAIPDDc4cHiN-Gaguo4ZFmEawG2N/preview',
+        isFolder: false,
+        bgGradient: 'from-red-950 to-amber-950'
+      },
+      {
+        id: 'aquaman-reino-perdido',
+        title: 'Aquaman y el reino perdido',
+        type: 'movie',
+        category: 'Series Marvel & DC 🦸',
+        author: '@DCDrive',
+        views: '38.4K',
+        likes: 4100,
+        duration: '02:04:00',
+        description: 'Arthur Curry debe forjar una alianza incómoda para proteger Atlantis y al mundo de una devastación irreversible.',
+        driveEmbedUrl: 'https://drive.google.com/file/d/1Uu3fyLaC13rOVnq0q1CaxZ1C3WTREOON/preview',
+        isFolder: false,
+        bgGradient: 'from-blue-950 to-cyan-950'
+      },
+      {
+        id: 'aquaman-1',
+        title: 'Aquaman',
+        type: 'movie',
+        category: 'Series Marvel & DC 🦸',
+        author: '@DCDrive',
+        views: '52.1K',
+        likes: 5600,
+        duration: '02:23:00',
+        description: 'Arthur Curry, el heredero del reino submarino de Atlantis, debe dar un paso al frente para liderar a su gente.',
+        driveEmbedUrl: 'https://drive.google.com/file/d/1UgDwWPrctrxFLXY4zklwbfXZqf1wHfM8/preview',
+        isFolder: false,
+        bgGradient: 'from-blue-950 to-indigo-950'
+      },
+      {
+        id: 'batman-vs-superman',
+        title: 'Batman v Superman: El Origen de la Justicia',
+        type: 'movie',
+        category: 'Series Marvel & DC 🦸',
+        author: '@DCDrive',
+        views: '67.5K',
+        likes: 7800,
+        duration: '02:31:00',
+        description: 'El temible y vigilante de Gótica se enfrenta al salvador moderno de Metrópolis mientras una nueva amenaza pone a la humanidad en peligro.',
+        driveEmbedUrl: 'https://drive.google.com/file/d/1bFVkbvzxUfapU1CRBCjkxlxUM8EuX1Fe/preview',
+        isFolder: false,
+        bgGradient: 'from-slate-950 to-zinc-900'
+      },
+      {
+        id: 'batman-caballero-noche-asciende',
+        title: 'Batman: El caballero de la noche asciende',
+        type: 'movie',
+        category: 'Series Marvel & DC 🦸',
+        author: '@DCDrive',
+        views: '89.2K',
+        likes: 9500,
+        duration: '02:44:00',
+        description: 'Ocho años después de asumir la culpa por la muerte de Harvey Dent, Bruce Wayne se ve obligado a volver de su exilio por Bane.',
+        driveEmbedUrl: 'https://drive.google.com/file/d/1azHU6cW1y_UGtvjQZruoiMMb0hdbTJWv/preview',
+        isFolder: false,
+        bgGradient: 'from-gray-950 to-neutral-900'
+      },
+      {
+        id: 'black-adam',
+        title: 'Black Adam',
+        type: 'movie',
+        category: 'Series Marvel & DC 🦸',
+        author: '@DCDrive',
+        views: '44.3K',
+        likes: 4600,
+        duration: '02:05:00',
+        description: 'Casi 5,000 años después de recibir los poderes todopoderosos de los dioses antiguos, Black Adam es liberado de su tumba terrenal.',
+        driveEmbedUrl: 'https://drive.google.com/file/d/1hq_2F6jG5Pct-bEpE5sugXiNncYzvsZZ/preview',
+        isFolder: false,
+        bgGradient: 'from-amber-950 to-stone-900'
+      },
+      {
+        id: 'blue-beetle',
+        title: 'Blue Beetle (2023)',
+        type: 'movie',
+        category: 'Series Marvel & DC 🦸',
+        author: '@DCDrive',
+        views: '39.0K',
+        likes: 3800,
+        duration: '02:07:00',
+        description: 'Un joven universitario mexicano se encuentra en posesión de una antigua reliquia de biotecnología alienígena: el Escarabajo.',
+        driveEmbedUrl: 'https://drive.google.com/file/d/1lSb8_DSsv32WqVIJYM4SJlF6Ah-yyG9n/preview',
+        isFolder: false,
+        bgGradient: 'from-cyan-950 to-blue-900'
+      },
+      {
+        id: 'escuadron-suicida-1',
+        title: 'Escuadrón Suicida 1',
+        type: 'movie',
+        category: 'Series Marvel & DC 🦸',
+        author: '@DCDrive',
+        views: '48.6K',
+        likes: 5100,
+        duration: '02:03:00',
+        description: 'Una agencia secreta gubernamental recluta a los supervillanos encarcelados más peligrosos para ejecutar misiones suicidas.',
+        driveEmbedUrl: 'https://drive.google.com/file/d/1xl1abnUDkC_eA9YC-ZXme_ZQh377OCte/preview',
+        isFolder: false,
+        bgGradient: 'from-emerald-950 to-zinc-900'
+      },
+      {
+        id: 'escuadron-suicida-2',
+        title: 'Escuadrón Suicida 2 (The Suicide Squad)',
+        type: 'movie',
+        category: 'Series Marvel & DC 🦸',
+        author: '@DCDrive',
+        views: '55.2K',
+        likes: 6200,
+        duration: '02:12:00',
+        description: 'Los supervillanos más peligrosos del mundo son enviados a la remota isla de Corto Maltese, repleta de enemigos.',
+        driveEmbedUrl: 'https://drive.google.com/file/d/1S4iKPfT5UFnDvTPQtXKaheZxGo-wRNGL/preview',
+        isFolder: false,
+        bgGradient: 'from-red-950 to-zinc-950'
+      },
+      {
+        id: 'joker-2019',
+        title: 'Joker (2019)',
+        type: 'movie',
+        category: 'Series Marvel & DC 🦸',
+        author: '@DCDrive',
+        views: '94.8K',
+        likes: 11200,
+        duration: '02:02:00',
+        description: 'En Gotham City, el comediante con problemas mentales Arthur Fleck es ignorado y mistratado por la sociedad.',
+        driveEmbedUrl: 'https://drive.google.com/file/d/1rX5FmzdcDasg3AdXPH2sB8zeoimFzTPE/preview',
+        isFolder: false,
+        bgGradient: 'from-rose-950 to-neutral-950'
+      },
+      {
+        id: 'joker-2-2024',
+        title: 'Joker 2 (Folie à Deux) (2024)',
+        type: 'movie',
+        category: 'Series Marvel & DC 🦸',
+        author: '@DCDrive',
+        views: '71.4K',
+        likes: 8100,
+        duration: '02:18:00',
+        description: 'Arthur Fleck está internado en el hospital de Arkham a la espera de su juicio por sus crímenes como Joker.',
+        driveEmbedUrl: 'https://drive.google.com/file/d/1dvb7YB00p740_Oqvm5MKROOOlT8MES6L/preview',
+        isFolder: false,
+        bgGradient: 'from-red-950 to-stone-950'
+      },
+      {
+        id: 'justice-league',
+        title: 'Justice League',
+        type: 'movie',
+        category: 'Series Marvel & DC 🦸',
+        author: '@DCDrive',
+        views: '60.3K',
+        likes: 6700,
+        duration: '02:00:00',
+        description: 'Impulsado por su fe restaurada en la humanidad e inspirado por el acto desinteresado de Superman, Bruce Wayne se une a Diana Prince.',
+        driveEmbedUrl: 'https://drive.google.com/file/d/1wVLdlunJ35_2m6n8vOc7lBA5XyIyyRdO/preview',
+        isFolder: false,
+        bgGradient: 'from-blue-950 to-slate-950'
+      },
+      {
+        id: 'zack-snyders-justice-league',
+        title: 'La Liga de la Justicia de Zack Snyder',
+        type: 'movie',
+        category: 'Series Marvel & DC 🦸',
+        author: '@DCDrive',
+        views: '88.9K',
+        likes: 10500,
+        duration: '04:02:00',
+        description: 'Decidido a asegurar que el sacrificio final de Superman no sea en vano, Bruce Wayne alinea fuerzas con Diana Prince.',
+        driveEmbedUrl: 'https://drive.google.com/file/d/1JLPczrXEmr3bRZO2cv_g_sYdGoEh6ut6/preview',
+        isFolder: false,
+        bgGradient: 'from-slate-950 to-zinc-950'
+      },
+      {
+        id: 'shazam-furia-dioses',
+        title: 'Shazam, La furia de los dioses',
+        type: 'movie',
+        category: 'Series Marvel & DC 🦸',
+        author: '@DCDrive',
+        views: '35.6K',
+        likes: 3400,
+        duration: '02:10:00',
+        description: 'La familia de Billy Batson dotada con los poderes de los dioses debe enfrentarse a las hijas de Atlas.',
+        driveEmbedUrl: 'https://drive.google.com/file/d/1e8rLO2lejPfuqwQXc1J61_oC-DyB92nY/preview',
+        isFolder: false,
+        bgGradient: 'from-amber-950 to-red-950'
+      },
+      {
+        id: 'the-flash-series',
+        title: 'The Flash (DC)',
+        type: 'series',
+        category: 'Series Marvel & DC 🦸',
+        author: '@DCDrive',
+        views: '42.8K',
+        likes: 5100,
+        duration: '1 Temporada',
+        description: 'Barry Allen obtiene súper velocidad tras la explosión de un acelerador de partículas y se convierte en el protector de Central City.',
+        bgGradient: 'from-red-950 to-amber-900',
+        seasons: [
+          {
+            seasonNumber: 1,
+            title: 'Temporada 1',
+            episodes: [
+              { episodeNumber: 1, title: 'Capítulo 1: Piloto', duration: '44 min', embedUrl: 'https://drive.google.com/file/d/1Z953uAIPDDc4cHiN-Gaguo4ZFmEawG2N/preview' },
+              { episodeNumber: 2, title: 'Capítulo 2: El hombre más rápido', duration: '42 min', embedUrl: 'https://drive.google.com/file/d/1Uu3fyLaC13rOVnq0q1CaxZ1C3WTREOON/preview' },
+              { episodeNumber: 3, title: 'Capítulo 3: Cosas que haces', duration: '43 min', embedUrl: 'https://drive.google.com/file/d/1UgDwWPrctrxFLXY4zklwbfXZqf1wHfM8/preview' }
+            ]
+          }
+        ]
+      }
+    ];
+
+    function getFavorites() { 
+      try {
+        return JSON.parse(localStorage.getItem('nexusplayFavorites') || '[]'); 
+      } catch(e) {
+        return [];
+      }
+    }
+    
+    function isFavorite(id) { return getFavorites().includes(id); }
+
+    function toggleFavorite(id, event) {
+      if (event) event.stopPropagation();
+      let favs = getFavorites();
+      if (favs.includes(id)) {
+        favs = favs.filter(favId => favId !== id);
+        showToast('Eliminado de tus Favoritos 🗑️');
+      } else {
+        favs.push(id);
+        showToast('¡Guardado en tus Favoritos! ⭐');
+      }
+      localStorage.setItem('nexusplayFavorites', JSON.stringify(favs));
+      updateFavBadge();
+      renderCatalog();
+      if (activeSeries && activeSeries.id === id) updateSeriesFavButton();
+    }
+
+    function updateFavBadge() { 
+      const badge = document.getElementById('favCountBadge');
+      if(badge) badge.innerText = getFavorites().length; 
+    }
+
+    function getCatalog() {
+      const saved = localStorage.getItem('nexusplayCatalog_v8');
+      let catalog = saved ? JSON.parse(saved) : rawCatalog;
+      return catalog.sort((a, b) => a.title.localeCompare(b.title, 'es', { sensitivity: 'base' }));
+    }
+
+    function saveCatalog(catalog) {
+      localStorage.setItem('nexusplayCatalog_v8', JSON.stringify(catalog));
+    }
+
+    function updateCounters(filteredCount) {
+      const catalog = getCatalog();
+      const moviesCount = catalog.filter(i => i.type === 'movie').length;
+      const seriesCount = catalog.filter(i => i.type === 'series').length;
+      const totalCount = catalog.length;
+
+      document.getElementById('statMovieCount').innerText = moviesCount;
+      document.getElementById('statSeriesCount').innerText = seriesCount;
+      document.getElementById('statTotalCount').innerText = totalCount;
+      document.getElementById('statFilteredCount').innerText = filteredCount !== undefined ? filteredCount : totalCount;
+
+      document.getElementById('badgeMediaAll').innerText = totalCount;
+      document.getElementById('badgeMediaMovie').innerText = moviesCount;
+      document.getElementById('badgeMediaSeries').innerText = seriesCount;
+    }
+
+    function selectMediaType(type) {
+      selectedMediaType = type;
+      const btnAll = document.getElementById('btnMediaAll');
+      const btnMovie = document.getElementById('btnMediaMovie');
+      const btnSeries = document.getElementById('btnMediaSeries');
+
+      const activeClass = 'bg-pink-600 text-white shadow-md font-bold';
+      const inactiveClass = 'text-gray-400 hover:text-white hover:bg-gray-800';
+
+      btnAll.className = `px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1.5 ${type === 'all' ? activeClass : inactiveClass}`;
+      btnMovie.className = `px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1.5 ${type === 'movie' ? activeClass : inactiveClass}`;
+      btnSeries.className = `px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1.5 ${type === 'series' ? activeClass : inactiveClass}`;
+
+      renderCatalog();
+    }
+
+    function renderCategoryButtons() {
+      const container = document.getElementById('categoryContainer');
+      const favs = getFavorites();
+
+      container.innerHTML = categories.map(cat => {
+        const isFavTab = cat === '⭐ Favoritos';
+        const isSelected = selectedCategory === cat;
+        return `
+          <button onclick="selectCategory('${cat}')" class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 ${
+            isSelected 
+              ? (isFavTab ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/30 font-extrabold' : 'bg-pink-600 text-white shadow-lg shadow-pink-600/30 ring-2 ring-pink-400/40') 
+              : 'bg-gray-900 border border-gray-800 hover:bg-gray-800 text-gray-300'
+          }">
+            ${cat}
+            ${isFavTab ? `<span class="${isSelected ? 'bg-black text-amber-400' : 'bg-amber-500/20 text-amber-400'} text-[10px] px-1.5 py-0.5 rounded-full font-bold">${favs.length}</span>` : ''}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectCategory(cat) {
+      selectedCategory = cat;
+      renderCategoryButtons();
+      renderCatalog();
+    }
+
+    function renderCatalog() {
+      const grid = document.getElementById('videoGrid');
+      const searchInput = document.getElementById('searchInput');
+      const search = searchInput ? searchInput.value.toLowerCase().trim() : '';
+      const catalog = getCatalog();
+      const favs = getFavorites();
+
+      const filtered = catalog.filter(item => {
+        const matchesCategory = selectedCategory === 'Todos' ? true :
+                                selectedCategory === '⭐ Favoritos' ? favs.includes(item.id) :
+                                item.category === selectedCategory;
+
+        const matchesMediaType = selectedMediaType === 'all' ? true : item.type === selectedMediaType;
+
+        const matchesSearch = item.title.toLowerCase().includes(search) || 
+                              item.description.toLowerCase().includes(search) ||
+                              item.category.toLowerCase().includes(search);
+
+        return matchesCategory && matchesMediaType && matchesSearch;
+      });
+
+      updateCounters(filtered.length);
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="col-span-full py-16 text-center text-gray-500"><i data-lucide="film" class="w-12 h-12 mx-auto mb-3 opacity-30"></i><p class="text-sm font-medium">No se encontraron títulos en esta sección.</p></div>`;
+        lucide.createIcons();
+        return;
+      }
+
+      grid.innerHTML = filtered.map((item) => {
+        const isFav = favs.includes(item.id);
+        const isMovie = item.type === 'movie';
+        return `
+          <div onclick="handleMediaClick('${item.id}')">
+            <div class="bg-gray-900 rounded-2xl overflow-hidden border border-gray-800/80 hover:border-pink-500/60 transition-all duration-300 flex flex-col cursor-pointer group shadow-xl hover:shadow-2xl hover:shadow-pink-500/10 hover:-translate-y-1 relative h-full">
+              
+              <button onclick="toggleFavorite('${item.id}', event)" title="${isFav ? 'Quitar de Favoritos' : 'Guardar en Favoritos'}" class="absolute top-3 right-3 z-20 p-2 rounded-xl backdrop-blur-md transition ${
+                isFav ? 'bg-amber-500 text-black shadow-lg scale-105' : 'bg-black/60 hover:bg-black/80 text-gray-300 hover:text-amber-400'
+              }">
+                <i data-lucide="bookmark" class="w-4 h-4 ${isFav ? 'fill-black' : ''}"></i>
+              </button>
+
+              <div class="relative h-44 bg-gradient-to-br ${item.bgGradient || 'from-gray-900 to-gray-800'} flex items-center justify-center overflow-hidden p-4">
+                <div class="w-14 h-14 rounded-full bg-pink-600/90 text-white flex items-center justify-center group-hover:scale-110 transition duration-300 shadow-xl ring-4 ring-pink-500/20">
+                  <i data-lucide="${isMovie ? 'play' : 'tv'}" class="w-7 h-7"></i>
+                </div>
+
+                <span class="absolute bottom-3 right-3 bg-black/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-md border border-white/10">${item.duration}</span>
+
+                <span class="absolute top-3 left-3 bg-black/80 backdrop-blur-md text-white text-[10px] font-black px-2.5 py-1 rounded-full border ${isMovie ? 'border-pink-500/50 text-pink-300' : 'border-purple-500/50 text-purple-300'} shadow-md flex items-center gap-1">
+                  ${isMovie ? '🎬 Película' : '📺 Serie'}
+                </span>
+              </div>
+
+              <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+                <div>
+                  <h3 class="font-bold text-gray-100 text-sm group-hover:text-pink-400 transition line-clamp-1 mb-1" title="${item.title}">${item.title}</h3>
+                  <p class="text-[11px] text-pink-400 font-medium">${item.author}</p>
+                  <p class="text-xs text-gray-400 line-clamp-2 mt-1.5">${item.description}</p>
+                </div>
+
+                <div class="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-gray-800/80 font-medium">
+                  <span class="flex items-center gap-1"><i data-lucide="eye" class="w-3.5 h-3.5 text-pink-500"></i> ${item.views}</span>
+                  <span class="text-pink-400 flex items-center gap-1 font-semibold">
+                    ${isMovie ? 'Reproducir 🎬' : 'Ver Capítulos 📺'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    let activeSeries = null;
+    let activeSeasonIndex = 0;
+    let activeEpisodeIndex = 0;
+
+    function handleMediaClick(id) {
+      const catalog = getCatalog();
+      const item = catalog.find(i => i.id === id);
+      if (!item) return;
+
+      if (item.type === 'series') {
+        openSeriesModal(item);
+      } else {
+        openPlayerModal(item);
+      }
+    }
+
+    function openSeriesModal(series) {
+      activeSeries = series;
+      activeSeasonIndex = 0;
+      activeEpisodeIndex = 0;
+
+      document.getElementById('seriesModalTitle').innerText = series.title;
+      document.getElementById('seriesModalDescription').innerText = series.description;
+      
+      updateSeriesFavButton();
+      renderSeasonTabs();
+      
+      if (series.seasons && series.seasons.length > 0) {
+        selectSeason(0, 0);
+      } else {
+        document.getElementById('episodesListContainer').innerHTML = `<p class="text-xs text-gray-500 p-4">No hay capítulos registrados en esta serie.</p>`;
+      }
+
+      document.getElementById('seriesModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function renderSeasonTabs() {
+      const container = document.getElementById('seasonTabsContainer');
+      if (!activeSeries || !activeSeries.seasons) return;
+
+      container.innerHTML = activeSeries.seasons.map((season, idx) => `
+        <button onclick="selectSeason(${idx}, 0)" class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition ${
+          activeSeasonIndex === idx ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30' : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700'
+        }">
+          ${season.title || `Temporada ${season.seasonNumber}`}
+        </button>
+      `).join('');
+    }
+
+    function selectSeason(seasonIdx, targetEpIdx = 0) {
+      activeSeasonIndex = seasonIdx;
+      renderSeasonTabs();
+
+      const season = activeSeries.seasons[seasonIdx];
+      const episodesContainer = document.getElementById('episodesListContainer');
+      
+      document.getElementById('episodesListHeader').innerText = season.title || `Temporada ${season.seasonNumber}`;
+      document.getElementById('episodesCountBadge').innerText = `${season.episodes.length} capítulos`;
+
+      episodesContainer.innerHTML = season.episodes.map((ep, epIdx) => `
+        <div id="episode-btn-${epIdx}" onclick="playEpisodeByIndices(${seasonIdx}, ${epIdx})" class="p-3 bg-gray-950 hover:bg-purple-950/40 border border-gray-800 hover:border-purple-500/50 rounded-xl cursor-pointer transition flex items-center justify-between group episode-card-btn">
+          <div class="flex items-center gap-3 overflow-hidden">
+            <div class="w-8 h-8 rounded-lg bg-purple-900/50 group-hover:bg-purple-600 text-purple-300 group-hover:text-white flex items-center justify-center font-bold text-xs transition">
+              ${ep.episodeNumber || epIdx + 1}
+            </div>
+            <div class="truncate">
+              <h5 class="text-xs font-bold text-gray-200 group-hover:text-purple-300 transition truncate">${ep.title}</h5>
+              <span class="text-[10px] text-gray-500">${ep.duration || 'Drive Video'}</span>
+            </div>
+          </div>
+          <i data-lucide="play" class="w-4 h-4 text-purple-400 opacity-60 group-hover:opacity-100 transition"></i>
+        </div>
+      `).join('');
+
+      if (season.episodes && season.episodes.length > 0) {
+        const epToPlay = Math.min(targetEpIdx, season.episodes.length - 1);
+        playEpisodeByIndices(seasonIdx, epToPlay);
+      }
+
+      lucide.createIcons();
+    }
+
+    function playEpisodeByIndices(seasonIdx, epIdx) {
+      if (activeSeasonIndex !== seasonIdx) {
+        selectSeason(seasonIdx, epIdx);
+        return;
+      }
+
+      activeEpisodeIndex = epIdx;
+      const season = activeSeries.seasons[seasonIdx];
+      const ep = season.episodes[epIdx];
+      if (!ep) return;
+
+      document.getElementById('activeEpisodeTitle').innerText = ep.title;
+      document.getElementById('navEpisodeSubtitle').innerText = `${season.title || 'Temporada ' + (seasonIdx + 1)} • ${ep.title}`;
+
+      document.querySelectorAll('.episode-card-btn').forEach((card, idx) => {
+        if (idx === epIdx) {
+          card.classList.add('border-purple-500', 'bg-purple-950/60');
+          card.classList.remove('bg-gray-950', 'border-gray-800');
+        } else {
+          card.classList.remove('border-purple-500', 'bg-purple-950/60');
+          card.classList.add('bg-gray-950', 'border-gray-800');
+        }
+      });
+
+      const playerArea = document.getElementById('seriesPlayerArea');
+      playerArea.innerHTML = `
+        <iframe 
+          id="activeSeriesIframe"
+          src="${ep.embedUrl}" 
+          class="w-full h-full border-0" 
+          allow="autoplay; fullscreen"
+          allowfullscreen>
+        </iframe>
+      `;
+
+      updateNavButtonsState();
+    }
+
+    function updateNavButtonsState() {
+      if (!activeSeries || !activeSeries.seasons) return;
+
+      const prevBtn = document.getElementById('btnPrevEpisode');
+      const nextBtn = document.getElementById('btnNextEpisode');
+
+      const isFirstSeason = activeSeasonIndex === 0;
+      const isFirstEpisode = activeEpisodeIndex === 0;
+      const hasPrevious = !(isFirstSeason && isFirstEpisode);
+
+      const isLastSeason = activeSeasonIndex === activeSeries.seasons.length - 1;
+      const isLastEpisode = activeEpisodeIndex === activeSeries.seasons[activeSeasonIndex].episodes.length - 1;
+      const hasNext = !(isLastSeason && isLastEpisode);
+
+      prevBtn.disabled = !hasPrevious;
+      nextBtn.disabled = !hasNext;
+    }
+
+    function playPreviousEpisode() {
+      if (!activeSeries) return;
+
+      if (activeEpisodeIndex > 0) {
+        playEpisodeByIndices(activeSeasonIndex, activeEpisodeIndex - 1);
+      } else if (activeSeasonIndex > 0) {
+        const prevSeasonIdx = activeSeasonIndex - 1;
+        const lastEpInPrevSeason = activeSeries.seasons[prevSeasonIdx].episodes.length - 1;
+        selectSeason(prevSeasonIdx, lastEpInPrevSeason);
+      }
+    }
+
+    function playNextEpisode() {
+      if (!activeSeries) return;
+
+      const currentSeasonEpisodes = activeSeries.seasons[activeSeasonIndex].episodes;
+      if (activeEpisodeIndex < currentSeasonEpisodes.length - 1) {
+        playEpisodeByIndices(activeSeasonIndex, activeEpisodeIndex + 1);
+      } else if (activeSeasonIndex < activeSeries.seasons.length - 1) {
+        selectSeason(activeSeasonIndex + 1, 0);
+      }
+    }
+
+    function updateSeriesFavButton() {
+      if (!activeSeries) return;
+      const isFav = isFavorite(activeSeries.id);
+      const btn = document.getElementById('seriesFavBtn');
+      const icon = document.getElementById('seriesFavIcon');
+      const text = document.getElementById('seriesFavText');
+
+      if (isFav) {
+        btn.className = 'bg-amber-500 text-black text-xs font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-lg';
+        icon.className = 'w-4 h-4 fill-black';
+        text.innerText = 'Guardado';
+      } else {
+        btn.className = 'bg-gray-800 hover:bg-amber-500/20 text-gray-200 hover:text-amber-400 text-xs font-semibold px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 border border-gray-700';
+        icon.className = 'w-4 h-4';
+        text.innerText = 'Favorito';
+      }
+      lucide.createIcons();
+    }
+
+    function toggleFavoriteFromSeriesModal() {
+      if (!activeSeries) return;
+      toggleFavorite(activeSeries.id);
+    }
+
+    function closeSeriesModal() {
+      document.getElementById('seriesModal').classList.add('hidden');
+      document.getElementById('seriesPlayerArea').innerHTML = '';
+      activeSeries = null;
+    }
+
+    function toggleSeriesFullscreen() {
+      const container = document.getElementById('seriesVideoContainer');
+      if (!document.fullscreenElement) {
+        if (container.requestFullscreen) container.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    function openPlayerModal(item) {
+      document.getElementById('modalTitle').innerText = item.title;
+      document.getElementById('modalCategoryBadge').innerText = item.category;
+      document.getElementById('modalAuthor').innerText = item.author;
+      document.getElementById('modalDescription').innerText = item.description;
+
+      const mediaArea = document.getElementById('mediaRenderArea');
+      if (item.driveEmbedUrl) {
+        mediaArea.innerHTML = `<iframe src="${item.driveEmbedUrl}" class="w-full h-full border-0" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+      }
+
+      document.getElementById('playerModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closePlayerModal() {
+      document.getElementById('playerModal').classList.add('hidden');
+      document.getElementById('mediaRenderArea').innerHTML = '';
+    }
+
+    function toggleFullscreen() {
+      const container = document.getElementById('videoPlayerContainer');
+      if (!document.fullscreenElement) {
+        if (container.requestFullscreen) container.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    function openUploadModal() { document.getElementById('uploadModal').classList.remove('hidden'); }
+    function closeUploadModal() { document.getElementById('uploadModal').classList.add('hidden'); document.getElementById('uploadForm').reset(); }
+
+    function handleVideoUpload(event) {
+      event.preventDefault();
+      const title = document.getElementById('uploadTitle').value.trim();
+      const type = document.getElementById('uploadType').value;
+      const category = document.getElementById('uploadCategory').value;
+      const url = document.getElementById('uploadUrl').value.trim();
+      const description = document.getElementById('uploadDescription').value.trim() || 'Agregado recientemente.';
+
+      let embedUrl = url.includes('drive.google.com') && url.includes('/view') ? url.replace('/view', '/preview') : url;
+
+      const newItem = {
+        id: 'user-' + Date.now(),
+        title,
+        type,
+        category,
+        author: '@MiUsuario',
+        views: '1',
+        likes: 0,
+        duration: type === 'movie' ? 'Película HD' : '1 Temporada',
+        description,
+        driveEmbedUrl: embedUrl,
+        bgGradient: type === 'movie' ? 'from-pink-950 to-purple-900' : 'from-purple-950 to-slate-900',
+        seasons: type === 'series' ? [{
+          seasonNumber: 1,
+          title: 'Temporada 1',
+          episodes: [{ episodeNumber: 1, title: `${title} - Capítulo 1`, duration: 'Drive HD', embedUrl }]
+        }] : null
+      };
+
+      const catalog = getCatalog();
+      catalog.push(newItem);
+      saveCatalog(catalog);
+
+      closeUploadModal();
+      renderCatalog();
+      showToast('¡Contenido agregado con éxito! ⚡');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMessage').innerText = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      updateFavBadge();
+      renderCategoryButtons();
+      renderCatalog();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
